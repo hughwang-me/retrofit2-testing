@@ -6,7 +6,9 @@ import com.uwjx.retrofit2.common.model.Book;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ResponseBody;
 import org.springframework.stereotype.Service;
+import retrofit2.Call;
 import retrofit2.Retrofit;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,12 +22,16 @@ public class BookServiceImpl implements BookService {
         List<Book> books = new ArrayList<Book>();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://localhost:8080/")
+                .addConverterFactory(JacksonConverterFactory.create())
                 .build();
 
         BookApi bookApi = retrofit.create(BookApi.class);
         try {
-            ResponseBody responseBody = bookApi.books().execute().body();
-            log.warn("{}" , responseBody.string());
+            Call<List<Book>> call = bookApi.books();
+            List<Book> bookList = call.execute().body();
+            for (Book book : bookList) {
+                log.warn("{}" , book.toString());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
